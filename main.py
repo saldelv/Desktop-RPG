@@ -6,6 +6,7 @@ import zlib
 import tempfile
 import pickle
 from pathlib import Path
+from database import *
 
 # Tooltip hover class
 class Tooltip(object):
@@ -59,7 +60,10 @@ def open_equipment():
     eroot.geometry("+%d+%d" % (ex, ey))
     eroot.wm_attributes('-topmost', '1')
 
-    sword_image = tk.PhotoImage(file = 'sword.png', master=eroot)
+    if equiped[0] != "":
+        sword_image = tk.PhotoImage(file = equiped[0] + '.png', master=eroot)
+    else:
+        sword_image = tk.PhotoImage(file = 'sword.png', master=eroot)
     weapon = tk.Button(eroot, text = "Weapon", image = sword_image, command=lambda: equip(0, eroot))
     weapon.image = sword_image
     headgear = tk.Button(eroot, text="Headgear", command=lambda: equip(1, eroot))
@@ -91,24 +95,56 @@ def equip(slot, eroot):
     iroot.geometry("+%d+%d" % (ix, iy))
     iroot.wm_attributes('-topmost', '1')
 
+    inv = 0
     for i in range(5):
         for j in range(5):
-            b = tk.Button(iroot, height=1, width=3, command = iroot.destroy)
+            b = tk.Button(iroot)
+            if inv < len(weapon_inventory):
+                if weapon_inventory[inv]:
+                    img = tk.PhotoImage(file = weapon_inventory[inv] + ".png", master=iroot)
+                    current = inv
+                    b.configure(image=img, command=lambda: new_equip(slot, weapon_inventory[current], iroot, eroot))
+                    b.image = img
+                inv += 1
+            else:
+                img = tk.PhotoImage(file = "empty.png", master=iroot)
+                b.configure(image=img)
+                b.image=img
             b.grid(row=i, column=j)
+
+def new_equip(slot, new_weapon, iroot, eroot):
+    if not equiped[slot]:
+        equiped[slot] = new_weapon
+        weapon_inventory.remove(new_weapon)
+    
+    iroot.destroy()
+    eroot.destroy()
+    open_equipment()
+
+
+
 
 def do_quit():
     with open('savefile.dat', 'wb') as f:
-        pickle.dump([level, health, gold], f)
+        pickle.dump([level, experience, health, gold, equiped, weapon_inventory, helmet_inventory, chestpiece_inventory, leggings_inventory, boots_inventory], f)
     quit()
 
 # Saved stats
 if (Path('savefile.dat').exists()):
     with open('savefile.dat', 'rb') as f:
-        level, health, gold = pickle.load(f)
+        level, experience, health, gold, equiped, weapon_inventor, helmet_inventory, chestpiece_inventory, leggings_inventory, boots_inventory = pickle.load(f)
 else:
     level = 1
+    experience = 0
     health = 100
     gold = 0
+    equiped = ["", "", "", "", ""]
+    weapon_inventory = ["Level 1 Common Sword"]
+    helmet_inventory = [""]
+    chestpiece_inventory = [""]
+    leggings_inventory = [""]
+    boots_inventory = [""]
+
 
 # Default variables
 x = 2200
@@ -187,7 +223,7 @@ character.pack()
 CreateToolTip(character, text = "Health: " + str(health) + "/100 \nStrength: 1 \nDefense: 1")
 
 m = tk.Menu(root, tearoff = 0)
-m.add_command(label="Inventory", command=open_equipment)
+m.add_command(label="Equipment", command=open_equipment)
 m.add_command(label="Exit", command=do_quit)
 character.bind("<Button-3>", do_menu)
 
