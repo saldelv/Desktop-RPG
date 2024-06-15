@@ -115,7 +115,11 @@ def get_equipped(slot, eroot):
         img = tk.PhotoImage(file = 'assets/items/' + equiped[slot] + '.png', master=eroot)
         rows = func(equiped[slot])
         for row in rows:
-            CreateToolTip(button, text = str(row[0]) + "\nAttack: " + str(row[1]) + "\nValue: " + str(row[2]))
+            if slot == 0:
+                stat = "Attack: "
+            else:
+                stat = "Defense: "
+            CreateToolTip(button, text = str(row[0]) + "\n" + stat + str(row[1]) + "\nValue: " + str(row[2]))
 
         em = tk.Menu(root, tearoff = 0)
         em.add_command(label="Unequip", command=lambda: remove_equip(slot, eroot))
@@ -168,7 +172,11 @@ def open_inventory(slot, eroot):
 
                     rows = func(inv[index])
                     for row in rows:
-                        CreateToolTip(b, text = str(row[0]) + "\nAttack: " + str(row[1]) + "\nValue: " + str(row[2]))
+                        if slot == 0:
+                            stat = "Attack: "
+                        else:
+                            stat = "Defense: "
+                        CreateToolTip(b, text = str(row[0]) + "\n" + stat + str(row[1]) + "\nValue: " + str(row[2]))
                     
                     im = tk.Menu(root, tearoff = 0)
                     im.add_command(label="Sell", command=lambda: sell_equip(slot, current, inv, iroot))
@@ -234,7 +242,7 @@ def new_equip(slot, current, iroot, eroot):
                 attack += row[1]
     
     UnbindToolTip(character)
-    CreateToolTip(character, text = character_text)
+    CreateToolTip(character, text = "Health: " + str(health) + "/100 \nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold))
 
     iroot.destroy()
     eroot.destroy()
@@ -266,14 +274,14 @@ def remove_equip(slot, eroot):
     rows = func(equiped[slot])
     for row in rows:
         if slot > 0:
-            defense += row[1]
+            defense -= row[1]
         else:
-            attack += row[1]
+            attack -= row[1]
     
     equiped[slot] = ""
 
     UnbindToolTip(character)
-    CreateToolTip(character, text = character_text)
+    CreateToolTip(character, text = "Health: " + str(health) + "/100 \nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold))
 
     eroot.destroy()
     open_equipment()
@@ -317,7 +325,7 @@ def sell_equip(slot, current, inv, a_root):
         a_root.destroy()
 
     UnbindToolTip(character)
-    CreateToolTip(character, text = character_text)
+    CreateToolTip(character, text = "Health: " + str(health) + "/100 \nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold))
 
 
 def do_quit():
@@ -340,13 +348,12 @@ else:
     equiped = ["", "", "", "", ""]
     weapon_inventory = ["Common Level 1 Sword", "Uncommon Level 1 Sword"]
     helmet_inventory = ["Legendary Level 1 Helmet"]
-    chestpiece_inventory = [""]
+    chestpiece_inventory = ["Rare Level 1 Chestpiece"]
     leggings_inventory = [""]
     boots_inventory = [""]
 
 
 # Default variables
-character_text = "Health: " + str(health) + "/100 \nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold)
 x = 2200
 y = 1280
 cycle = 0
@@ -420,7 +427,7 @@ root.wm_attributes('-topmost', '1')
 character = tk.Label(root, bd=0, bg='black')
 character.pack()
 
-CreateToolTip(character, text = character_text)
+CreateToolTip(character, text = "Health: " + str(health) + "/100 \nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold))
 
 m = tk.Menu(root, tearoff = 0)
 m.add_command(label="Equipment", command=open_equipment)

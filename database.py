@@ -13,7 +13,7 @@ def create_database():
     cursor.execute("INSERT INTO weapons VALUES ('Uncommon Level 1 Sword', 7, 7)")
     cursor.execute("INSERT INTO weapons VALUES ('Rare Level 1 Sword', 9, 9)")
     cursor.execute("INSERT INTO weapons VALUES ('Epic Level 1 Sword', 11, 11)")
-    cursor.execute("INSERT INTO weapons VALUES ('Lengendary Level 1 Sword', 13, 13)")
+    cursor.execute("INSERT INTO weapons VALUES ('Legendary Level 1 Sword', 13, 13)")
 
 
     # helmets
@@ -22,9 +22,9 @@ def create_database():
 
     cursor.execute("INSERT INTO helmets VALUES ('Common Level 1 Helmet', 2, 1)")
     cursor.execute("INSERT INTO helmets VALUES ('Uncommon Level 1 Helmet', 3, 2)")
-    cursor.execute("INSERT INTO weapons VALUES ('Rare Level 1 Helmet', 4, 3)")
-    cursor.execute("INSERT INTO weapons VALUES ('Epic Level 1 Helmet', 5, 4)")
-    cursor.execute("INSERT INTO weapons VALUES ('Lengendary Level 1 Helmet', 6, 5)")
+    cursor.execute("INSERT INTO helmets VALUES ('Rare Level 1 Helmet', 4, 3)")
+    cursor.execute("INSERT INTO helmets VALUES ('Epic Level 1 Helmet', 5, 4)")
+    cursor.execute("INSERT INTO helmets VALUES ('Legendary Level 1 Helmet', 6, 5)")
 
 
     # chestpieces
@@ -33,9 +33,9 @@ def create_database():
 
     cursor.execute("INSERT INTO chestpieces VALUES ('Common Level 1 Chestpiece', 4, 3)")
     cursor.execute("INSERT INTO chestpieces VALUES ('Uncommon Level 1 Chestpiece', 5, 5)")
-    cursor.execute("INSERT INTO weapons VALUES ('Rare Level 1 Chestpiece', 6, 7)")
-    cursor.execute("INSERT INTO weapons VALUES ('Epic Level 1 Chestpiece', 7, 9)")
-    cursor.execute("INSERT INTO weapons VALUES ('Lengendary Level 1 Chestpiece', 8, 11)")
+    cursor.execute("INSERT INTO chestpieces VALUES ('Rare Level 1 Chestpiece', 6, 7)")
+    cursor.execute("INSERT INTO chestpieces VALUES ('Epic Level 1 Chestpiece', 7, 9)")
+    cursor.execute("INSERT INTO chestpieces VALUES ('Legendary Level 1 Chestpiece', 8, 11)")
 
     # leggings
     chestpiece_table = "CREATE TABLE leggings (name TEXT, defense INTEGER, value INTEGER)"
@@ -43,9 +43,9 @@ def create_database():
 
     cursor.execute("INSERT INTO leggings VALUES ('Common Level 1 Leggings', 3, 2)")
     cursor.execute("INSERT INTO leggings VALUES ('Uncommon Level 1 Leggings', 4, 3)")
-    cursor.execute("INSERT INTO weapons VALUES ('Rare Level 1 Leggings', 5, 4)")
-    cursor.execute("INSERT INTO weapons VALUES ('Epic Level 1 Leggings', 6, 5)")
-    cursor.execute("INSERT INTO weapons VALUES ('Lengendary Level 1 Leggings', 7, 6)")
+    cursor.execute("INSERT INTO leggings VALUES ('Rare Level 1 Leggings', 5, 4)")
+    cursor.execute("INSERT INTO leggings VALUES ('Epic Level 1 Leggings', 6, 5)")
+    cursor.execute("INSERT INTO leggings VALUES ('Legendary Level 1 Leggings', 7, 6)")
 
     # boots
     chestpiece_table = "CREATE TABLE boots (name TEXT, defense INTEGER, value INTEGER)"
@@ -53,9 +53,9 @@ def create_database():
 
     cursor.execute("INSERT INTO boots VALUES ('Common Level 1 Boots', 1, 1)")
     cursor.execute("INSERT INTO boots VALUES ('Uncommon Level 1 Boots', 2, 2)")
-    cursor.execute("INSERT INTO weapons VALUES ('Rare Level 1 Boots', 3, 3)")
-    cursor.execute("INSERT INTO weapons VALUES ('Epic Level 1 Boots', 4, 4)")
-    cursor.execute("INSERT INTO weapons VALUES ('Lengendary Level 1 Boots', 5, 5)")
+    cursor.execute("INSERT INTO boots VALUES ('Rare Level 1 Boots', 3, 3)")
+    cursor.execute("INSERT INTO boots VALUES ('Epic Level 1 Boots', 4, 4)")
+    cursor.execute("INSERT INTO boots VALUES ('Legendary Level 1 Boots', 5, 5)")
 
     sqliteConnection.commit()
 
@@ -123,4 +123,9 @@ def get_boots(name):
     return rows
 
 #create_database()
-#print(get_weapon("Common Level 1 Sword"))
+print(get_weapon("Common Level 1 Sword"))
+print(get_helmet("Legendary Level 1 Helmet"))
+print(get_chestpiece("Rare Level 1 Chestpiece"))
+print(get_leggings("Common Level 1 Leggings"))
+print(get_boots("Common Level 1 Boots"))
+
