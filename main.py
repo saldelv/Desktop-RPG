@@ -349,8 +349,8 @@ else:
     weapon_inventory = ["Common Level 1 Sword", "Uncommon Level 1 Sword"]
     helmet_inventory = ["Legendary Level 1 Helmet"]
     chestpiece_inventory = ["Rare Level 1 Chestpiece"]
-    leggings_inventory = [""]
-    boots_inventory = [""]
+    leggings_inventory = []
+    boots_inventory = []
 max_health = health
 
 
@@ -374,6 +374,7 @@ root = tk.Tk()
 idle = [tk.PhotoImage(file='assets/character/stand.gif', format = 'gif -index %i' %(i)) for i in range(2)]
 walk_positive = [tk.PhotoImage(file='assets/character/left.gif', format = 'gif -index %i' %(i)) for i in range(2)]
 walk_negative = [tk.PhotoImage(file='assets/character/right.gif', format = 'gif -index %i' %(i)) for i in range(2)]
+fight = [tk.PhotoImage(file='assets/character/attack.gif', format = 'gif -index %i' %(i)) for i in range(2)]
 
 
 # Play gif and potentially change event
@@ -414,13 +415,18 @@ def update(cycle, check, event_number, x):
         cycle, event_number = gif_work(cycle, walk_negative, event_number, 1, 9)
         x += movex 
 
+    elif check == 3:
+        frame = fight[cycle]
+        cycle, event_number = gif_work(cycle, walk_negative, event_number, 1, 9)
+        x += movex 
+
     root.geometry('100x100+' + str(x) + '+' + str(y))
     character.configure(image = frame)
     if in_battle:
         if battle_moved < battle_distance:
             root.after(100, update, cycle, 1, event_number, x)
         else:
-            root.after(400, update, cycle, 0, event_number, x)
+            root.after(400, update, cycle, 3, event_number, x)
     elif finished_battle:
         root.after(100, update, cycle, 2, event_number, x)
     else:
@@ -488,10 +494,10 @@ def start_battle(enemy):
     
     if battle_moved >= battle_distance:
         enemy_health = tk.Label(enemy_root, text = "Enemy:\n" + str(enemy.health) + "/" + str(enemy.max_health))
-        enemy_health.place(x = enemy.winfo_x() + 75, y = enemy.winfo_y() - 90)
+        enemy_health.place(x = enemy.winfo_x() + 150, y = enemy.winfo_y() - 90)
         enemy_health.grid(row = 0, column = 0)
         player_health = tk.Label(enemy_root, text = "Player:\n" + str(health) + "/" + str(max_health))
-        player_health.place(x = enemy.winfo_x() + 50, y = enemy.winfo_y() - 50)
+        player_health.place(x = enemy.winfo_x() + 150, y = enemy.winfo_y() - 50)
         player_health.grid(row = 0, column = 1)
         root.after(400, lambda: update_battle(enemy, enemy_health, player_health))
     else:
@@ -501,7 +507,7 @@ def update_battle(enemy, enemy_health, player_health):
     global health, experience, in_battle, finished_battle, battle_distance, battle_moved
     enemy.health -= max(attack - enemy.defense, 0)
     health -= max(enemy.attack - defense, 0)
-    enemy_health.configure(text = "Enemy:\n" + str(max(enemy.health, 0)) + "/" + str(enemy.max_health))
+    enemy_health.configure(text = "Enemy:\n" + str(max(enemy.health, 0)) + "/" + str(enemy.max_health))   #
     player_health.configure(text = "Player:\n" + str(max(health, 0)) + "/" + str(max_health))
 
     if enemy.health <= 0:
@@ -514,6 +520,46 @@ def update_battle(enemy, enemy_health, player_health):
         battle_moved = 0
         player_health.destroy()
         enemy_health.destroy()
+
+        match random.randrange(0, 4):
+            case 0:
+                inv = weapon_inventory
+                name = "Sword"
+            case 1:
+                inv = helmet_inventory
+                name = "Helmet"
+            case 2:
+                inv = chestpiece_inventory
+                name = "Chestpiece"
+            case 3:
+                inv = leggings_inventory
+                name = "Leggings"
+            case 4:
+                inv = boots_inventory
+                name = "Boots"
+
+        chance = random.randrange(0, 100)
+        if (chance > 95):
+            drop = "Legendary Level " + str(level) + " " + name
+        elif (chance > 85):
+            drop = "Epic Level " + str(level) + " " + name
+        elif (chance > 70):
+            drop = "Rare Level " + str(level) + " " + name
+        elif (chance > 50):
+            drop = "Uncommon Level " + str(level) + " " + name
+        elif (chance > 20):
+            drop = "Common Level " + str(level) + " " + name
+        else:
+            drop = ""
+        
+        print(drop)
+        if drop != "":
+            inv.append(drop)
+            drop_text = tk.Label(enemy_root, text = "Obtained " + drop)
+            drop_text.place(x = enemy.winfo_x() + 150, y = enemy.winfo_y() - 90)
+            drop_text.pack()
+            root.after(1000, drop_text.destroy())
+
     elif health <= 0:
         print("lose")
         health = max_health
