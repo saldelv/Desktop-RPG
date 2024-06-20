@@ -74,7 +74,7 @@ def get_equipped(slot, eroot):
                 stat = "Attack: "
             else:
                 stat = "Defense: "
-            CreateToolTip(button, text = str(row[0]) + "\n" + stat + str(row[1]) + "\nValue: " + str(row[2]))
+            CreateToolTip(button, text = str(row[0]) + "\n" + stat + str(row[1]) + "\nValue: " + str(row[2]), h = 25, w = 0)
 
         em = tk.Menu(root, tearoff = 0)
         em.add_command(label="Unequip", command=lambda: remove_equip(slot, eroot))
@@ -82,7 +82,7 @@ def get_equipped(slot, eroot):
         button.bind("<Button-3>", lambda event, menu = em: do_menu(event, menu))
     else:
         img = tk.PhotoImage(file = 'assets/items/' + empty, master=eroot)
-        CreateToolTip(button, text=item)
+        CreateToolTip(button, text=item, h = 25, w = 0)
     button.configure(image=img)
     button.image = img
     
@@ -131,7 +131,7 @@ def open_inventory(slot, eroot):
                             stat = "Attack: "
                         else:
                             stat = "Defense: "
-                        CreateToolTip(b, text = str(row[0]) + "\n" + stat + str(row[1]) + "\nValue: " + str(row[2]))
+                        CreateToolTip(b, text = str(row[0]) + "\n" + stat + str(row[1]) + "\nValue: " + str(row[2]), h = 25, w = 0)
                     
                     im = tk.Menu(root, tearoff = 0)
                     im.add_command(label="Sell", command=lambda: sell_equip(slot, current, inv, iroot))
@@ -430,11 +430,9 @@ def start_battle(enemy):
     
     if battle_moved >= battle_distance:
         enemy_health = tk.Label(enemy_root, text = "Enemy:\n" + str(enemy.health) + "/" + str(enemy.max_health))
-        enemy_health.place(x = enemy.winfo_x() + 150, y = enemy.winfo_y() - 90)
-        enemy_health.grid(row = 0, column = 0)
+        enemy_health.place(x = enemy.winfo_x(), y = enemy.winfo_y() + 50)
         player_health = tk.Label(enemy_root, text = "Player:\n" + str(health) + "/" + str(max_health))
-        player_health.place(x = enemy.winfo_x() + 150, y = enemy.winfo_y() - 50)
-        player_health.grid(row = 0, column = 1)
+        player_health.place(x = enemy.winfo_x() + 225, y = enemy.winfo_y() + 50)
         root.after(400, lambda: update_battle(enemy, enemy_health, player_health))
     else:
         root.after(100, lambda: start_battle(enemy))
@@ -443,7 +441,7 @@ def update_battle(enemy, enemy_health, player_health):
     global health, experience, in_battle, finished_battle, battle_distance, battle_moved, level
     enemy.health -= max(attack - enemy.defense, 0)
     health -= max(enemy.attack - defense, 0)
-    enemy_health.configure(text = "Enemy:\n" + str(max(enemy.health, 0)) + "/" + str(enemy.max_health))   #
+    enemy_health.configure(text = "Enemy:\n" + str(max(enemy.health, 0)) + "/" + str(enemy.max_health))
     player_health.configure(text = "Player:\n" + str(max(health, 0)) + "/" + str(max_health))
 
     if enemy.health <= 0:
@@ -499,9 +497,8 @@ def update_battle(enemy, enemy_health, player_health):
         if drop != "":
             inv.append(drop)
             drop_text = tk.Label(enemy_root, text = "Obtained " + drop)
-            drop_text.place(x = enemy.winfo_x() + 150, y = enemy.winfo_y() - 90)
-            drop_text.grid()
-            root.after(1000, drop_text.destroy())
+            drop_text.place(x = enemy.winfo_x(), y = enemy.winfo_y() + 50)
+            root.after(3000, lambda: destroy_text(drop_text))
 
     elif health <= 0:
         print("lose")
@@ -512,9 +509,23 @@ def update_battle(enemy, enemy_health, player_health):
         battle_moved = 0
         player_health.destroy()
         enemy_health.destroy()
+
+    elif health == 100 and enemy.health == 100:
+        print("draw")
+        health = max_health
+        in_battle = False
+        finished_battle = True
+        battle_distance = 0
+        battle_moved = 0
+        player_health.destroy()
+        enemy_health.destroy()
+
     else:
         print("next turn")
-        root.after(500, lambda: update_battle(enemy, enemy_health, player_health))
+        root.after(200, lambda: update_battle(enemy, enemy_health, player_health))
+
+    def destroy_text(drop_text):
+        drop_text.destroy()
 
 ############################
 #          Menus           #
@@ -587,7 +598,7 @@ else:
     experience = 0
     health = 100
     gold = 0
-    attack = 1
+    attack = 7
     defense = 1
     equiped = ["", "", "", "", ""]
     weapon_inventory = ["Common Level 1 Sword", "Uncommon Level 1 Sword"]
@@ -628,7 +639,7 @@ if __name__ == "__main__":
     enemy_root.wm_attributes('-topmost', '1')
 
     enemy_root.geometry("+%d+%d" % (x - 800, y))
-    enemy_root.geometry('500x500')
+    enemy_root.geometry('700x500')
 
     root.after(1, update, cycle, check, event_number, x)
     enemy_root.after(3000, spawn_enemy)
