@@ -12,7 +12,9 @@ from database import *
 #        Inventory         #
 ############################
 
+# open equipment menu
 def open_equipment():
+    # create window
     eroot = tk.Toplevel(root)
     eroot.resizable(0, 0)
     ex = root.winfo_x() - 125
@@ -20,6 +22,7 @@ def open_equipment():
     eroot.geometry("+%d+%d" % (ex, ey))
     eroot.wm_attributes('-topmost', '1')
     
+    # get equipped data
     weapon = get_equipped(0, eroot)
     headgear = get_equipped(1, eroot)
     chestpiece = get_equipped(2, eroot)
@@ -42,6 +45,7 @@ def open_equipment():
     
     eroot.mainloop()
 
+# get equipped data
 def get_equipped(slot, eroot):
     match slot:
         case 0:
@@ -65,6 +69,7 @@ def get_equipped(slot, eroot):
             empty = 'Empty Boots.png'
             item = "Boots"
 
+    # create buttons with stats and images of equipped items and commands
     button = tk.Button(eroot, command=lambda: open_inventory(slot, eroot))
     if equiped[slot] != "":
         img = tk.PhotoImage(file = 'assets/items/' + equiped[slot] + '.png', master=eroot)
@@ -88,8 +93,9 @@ def get_equipped(slot, eroot):
     
     return button
 
-
+# open inventory for equipping in a specific slot
 def open_inventory(slot, eroot):
+    # getting correct slot info
     match slot:
         case 0:
             inv = weapon_inventory
@@ -107,6 +113,7 @@ def open_inventory(slot, eroot):
             inv = boots_inventory
             func = get_boots
     
+    # new window
     iroot = tk.Toplevel(eroot)
     iroot.resizable(0, 0)
     ix = eroot.winfo_x() - 170
@@ -114,6 +121,7 @@ def open_inventory(slot, eroot):
     iroot.geometry("+%d+%d" % (ix, iy))
     iroot.wm_attributes('-topmost', '1')
 
+    # creating grid of items in invetory with stats and images
     index = 0
     for i in range(5):
         for j in range(5):
@@ -145,10 +153,12 @@ def open_inventory(slot, eroot):
 
             b.grid(row=i, column=j)
 
+# equipping new item
 def new_equip(slot, current, iroot, eroot):
     global attack
     global defense
 
+    # getting correct slot info
     match slot:
         case 0:
             inv = weapon_inventory
@@ -166,6 +176,7 @@ def new_equip(slot, current, iroot, eroot):
             inv = boots_inventory
             func = get_boots
     
+    # move item to equipped if empty and chage stats
     if not equiped[slot]:
         equiped[slot] = inv[current]
         inv.remove(inv[current])
@@ -177,6 +188,7 @@ def new_equip(slot, current, iroot, eroot):
             else:
                 attack += row[1]
 
+    # swap item with equipped if not empty and change stats
     else:
         rows = func(equiped[slot])
         for row in rows:
@@ -196,6 +208,7 @@ def new_equip(slot, current, iroot, eroot):
             else:
                 attack += row[1]
     
+    # reload windows and tooltip
     UnbindToolTip(character)
     CreateToolTip(character, text = "Level: " + str(level) + "\nExperience: " + str(experience) + "\nHealth: " + str(health) + "\nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold), h = 150, w = -25)
 
@@ -203,10 +216,12 @@ def new_equip(slot, current, iroot, eroot):
     eroot.destroy()
     open_equipment()
 
+# unequip item
 def remove_equip(slot, eroot):
     global attack
     global defense
 
+    # get correct slot info
     match slot:
         case 0:
             inv = weapon_inventory
@@ -224,6 +239,7 @@ def remove_equip(slot, eroot):
             inv = boots_inventory
             func = get_boots
 
+    # move item to inventory and change stats
     inv.append(equiped[slot])
 
     rows = func(equiped[slot])
@@ -235,16 +251,20 @@ def remove_equip(slot, eroot):
     
     equiped[slot] = ""
 
+    # reload window and tooltip
     UnbindToolTip(character)
     CreateToolTip(character, text = "Level: " + str(level) + "\nExperience: " + str(experience) + "\nHealth: " + str(health) + "\nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold), h = 150, w = -25)
 
     eroot.destroy()
     open_equipment()
 
+# sell item
 def sell_equip(slot, current, inv, a_root):
     global gold
     global attack
     global defense
+    
+    # get correct slot info
     match slot:
             case 0:
                 func = get_weapon
@@ -257,6 +277,7 @@ def sell_equip(slot, current, inv, a_root):
             case 4:
                 func = get_boots
 
+    # unequip, add gold and change stats if equipped
     if current < 0:
         rows = func(equiped[slot])
         for row in rows:
@@ -271,6 +292,7 @@ def sell_equip(slot, current, inv, a_root):
         a_root.destroy()
         open_equipment()
 
+    # remove from inventory and add gold if not equipped
     else:
         rows = func(inv[current])
         for row in rows:
@@ -279,6 +301,7 @@ def sell_equip(slot, current, inv, a_root):
         inv.remove(inv[current])
         a_root.destroy()
 
+    # reload windows and tooltip
     UnbindToolTip(character)
     CreateToolTip(character, text = "Level: " + str(level) + "\nExperience: " + str(experience) + "\nHealth: " + str(health) + "\nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold), h = 150, w = -25)
 
@@ -293,6 +316,7 @@ def open_shop():
 #        Character         #
 ############################
 
+# create root
 root = tk.Tk()
 
 # Default variables
@@ -308,6 +332,7 @@ in_battle = False
 battle_distance = 0
 battle_moved = 0
 finished_battle = False
+won = False
 
 # Set gifs
 idle = [tk.PhotoImage(file='assets/character/stand.gif', format = 'gif -index %i' %(i)) for i in range(2)]
@@ -328,6 +353,7 @@ def gif_work(cycle, frames, event_number, first_num, last_num):
 # Update current event
 def update(cycle, check, event_number, x):
     global battle_moved, finished_battle
+    # change movement speed and update variables if moving for a battle
     if in_battle or finished_battle:
         if finished_battle:
             movex = 15
@@ -340,6 +366,7 @@ def update(cycle, check, event_number, x):
             movex = 0
     else:
         movex = 3
+    # check which animation to play
     if check == 0:
         frame = idle[cycle]
         cycle, event_number = gif_work(cycle, idle, event_number, 1, 9)
@@ -357,10 +384,11 @@ def update(cycle, check, event_number, x):
     elif check == 3:
         frame = fight[cycle]
         cycle, event_number = gif_work(cycle, walk_negative, event_number, 1, 9)
-        x += movex 
 
+    # move character
     root.geometry('100x100+' + str(x) + '+' + str(y))
     character.configure(image = frame)
+    # don't randomly change event if battling
     if in_battle:
         if battle_moved < battle_distance:
             root.after(100, update, cycle, 1, event_number, x)
@@ -368,6 +396,7 @@ def update(cycle, check, event_number, x):
             root.after(400, update, cycle, 3, event_number, x)
     elif finished_battle:
         root.after(100, update, cycle, 2, event_number, x)
+    # randomly change event when not in battle
     else:
         root.after(1, set_event, cycle, check, event_number, x)
 
@@ -393,9 +422,11 @@ def set_event(cycle, check, event_number, x):
 #         Battles          #
 ############################
 
+# spawn enemy after certain time
 def spawn_enemy():
     timer = 0
 
+    # creating random enemy in random location
     enemy = tk.Label(enemy_root, bd=0, bg='black')
 
     enemy.place(x = random.randrange(0, 400), y = -50)
@@ -411,8 +442,10 @@ def spawn_enemy():
 
     root.after(1, play_enemy(enemy, 0, name))
 
+    # click on enemy to start battle
     enemy.bind("<Button-1>", lambda event: start_battle(enemy))
 
+    # get and assign enemy stats
     enemy.health = 0
     enemy.max_health = 0
     enemy.attack = 0
@@ -429,12 +462,15 @@ def spawn_enemy():
 
     CreateToolTip(enemy, text = "Level " + str(level) + " " + name + "\nHealth: " + str(enemy.health), h = 0, w = 50)
 
+    # spawn next enemy and despawn current enemy after certain times
     root.after(60000, lambda: despawn_enemy(enemy))
     root.after(30000, spawn_enemy)
 
+# unload enemy
 def despawn_enemy(enemy):
     enemy.destroy()
 
+# play enemy gif
 def play_enemy(enemy, current_frame, name):
     img = [tk.PhotoImage(file='assets/enemies/' + name + '.gif', format = 'gif -index %i' %(i)) for i in range(6)]
     frame = img[current_frame]
@@ -443,35 +479,46 @@ def play_enemy(enemy, current_frame, name):
     current_frame = current_frame + 1
     if current_frame == len(img):
         current_frame = 0
-    if not finished_battle:
+    global won
+    # get rid of enemy if defeated in battle
+    if not won:
         root.after(200, lambda: play_enemy(enemy, current_frame, name))
     else:
         despawn_enemy(enemy)
+        won = False
 
+# start battle
 def start_battle(enemy):
     global in_battle, battle_distance
+    # set battle variable and calculate distance to enemy
     if not in_battle:
         in_battle = True
         battle_distance = (x - 1850) + (310-enemy.winfo_x())
     
+    # create health labels and start fighting if moved to enemy
     if battle_moved >= battle_distance:
         enemy_health = tk.Label(enemy_root, text = "Enemy:\n" + str(enemy.health) + "/" + str(enemy.max_health))
         enemy_health.place(x = enemy.winfo_x(), y = enemy.winfo_y() + 50)
         player_health = tk.Label(enemy_root, text = "Player:\n" + str(health) + "/" + str(max_health))
         player_health.place(x = enemy.winfo_x() + 225, y = enemy.winfo_y() + 50)
         root.after(400, lambda: update_battle(enemy, enemy_health, player_health))
+    # keep moving until reached enemy
     else:
         root.after(100, lambda: start_battle(enemy))
 
+# fighting
 def update_battle(enemy, enemy_health, player_health):
-    global health, experience, in_battle, finished_battle, battle_distance, battle_moved, level, max_health
+    global health, experience, in_battle, finished_battle, battle_distance, battle_moved, level, max_health, won
+    # update healths based on stats
     enemy.health -= max(attack - (enemy.defense * 0.5), 0)
     health -= max(enemy.attack - (defense * 0.5), 0)
     enemy_health.configure(text = "Enemy:\n" + str(max(enemy.health, 0)) + "/" + str(enemy.max_health))
     player_health.configure(text = "Player:\n" + str(max(health, 0)) + "/" + str(max_health))
 
+    # players wins battle
     if enemy.health <= 0:
         print("win")
+        # gain experience and level up
         experience += enemy.experience
         if experience >= 100 and level < 5:
             level = level + 1
@@ -482,6 +529,8 @@ def update_battle(enemy, enemy_health, player_health):
         UnbindToolTip(character)
         CreateToolTip(character, text = "Level: " + str(level) + "\nExperience: " + str(experience) + "\nHealth: " + str(health) + "\nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold), h = 150, w = -25)
         
+        # set variables to end battle and move back
+        won = True
         in_battle = False
         finished_battle = True
         battle_distance = 0
@@ -489,6 +538,7 @@ def update_battle(enemy, enemy_health, player_health):
         player_health.destroy()
         enemy_health.destroy()
 
+        # random drop slot
         match random.randrange(0, 5):
             case 0:
                 inv = weapon_inventory
@@ -506,6 +556,7 @@ def update_battle(enemy, enemy_health, player_health):
                 inv = boots_inventory
                 name = "Boots"
 
+        # random drop rarity
         chance = random.randrange(0, 100)
         if (chance > 95):
             drop = "Legendary Level " + str(level) + " " + name
@@ -520,6 +571,7 @@ def update_battle(enemy, enemy_health, player_health):
         else:
             drop = ""
         
+        # give drop to player and show label
         print(drop)
         if drop != "" and len(inv) < 25:
             inv.append(drop)
@@ -527,9 +579,12 @@ def update_battle(enemy, enemy_health, player_health):
             drop_text.place(x = enemy.winfo_x(), y = enemy.winfo_y() + 50)
             root.after(3000, lambda: destroy_text(drop_text))
 
+    # player loses battle
     elif health <= 0:
+        # set variables to end battle and move back
         print("lose")
         health = max_health
+        enemy.health = enemy.max_health
         in_battle = False
         finished_battle = True
         battle_distance = 0
@@ -537,9 +592,10 @@ def update_battle(enemy, enemy_health, player_health):
         player_health.destroy()
         enemy_health.destroy()
 
-    elif health == 100 and enemy.health == 100:
+    # battle ties if no damage is done
+    elif health == max_health and enemy.health == enemy.max_health:
+        # set variables to end battle and move back
         print("draw")
-        health = max_health
         in_battle = False
         finished_battle = True
         battle_distance = 0
@@ -547,10 +603,12 @@ def update_battle(enemy, enemy_health, player_health):
         player_health.destroy()
         enemy_health.destroy()
 
+    # next turn of attacking
     else:
         print("next turn")
         root.after(1000, lambda: update_battle(enemy, enemy_health, player_health))
 
+    # destroys drop text after certain time
     def destroy_text(drop_text):
         drop_text.destroy()
 
@@ -587,6 +645,7 @@ class Tooltip(object):
         if tw:
             tw.destroy()
     
+# creates tool tip with text and relative location
 def CreateToolTip(widget, text, h, w):
     tooltip = Tooltip(widget)
     def enter(set_event):
@@ -596,10 +655,12 @@ def CreateToolTip(widget, text, h, w):
     widget.bind('<Enter>', enter)
     widget.bind('<Leave>', leave)
 
+# deletes tooltip
 def UnbindToolTip(widget):
     widget.unbind('<Enter>')
     widget.unbind('<Leave')
 
+# creates right click menues
 def do_menu(event, menu):
     try:
         menu.tk_popup(event.x_root, event.y_root)
@@ -610,17 +671,19 @@ def do_menu(event, menu):
 #          Stats           #
 ############################
 
+# saves stats and inventory
 def do_quit():
     with open('savefile.dat', 'wb') as f:
         pickle.dump([level, experience, health, gold, attack, defense, equiped, weapon_inventory, helmet_inventory, chestpiece_inventory, leggings_inventory, boots_inventory], f)
 
     quit()
 
-# Saved stats
+# loads stats and inventory
 if (Path('savefile.dat').exists()):
     with open('savefile.dat', 'rb') as f:
         level, experience, health, gold, attack, defense, equiped, weapon_inventory, helmet_inventory, chestpiece_inventory, leggings_inventory, boots_inventory = pickle.load(f)
 else:
+    #stats for starting game for the first time
     level = 1
     experience = 0
     health = 20
@@ -628,11 +691,14 @@ else:
     attack = 7
     defense = 1
     equiped = ["", "", "", "", ""]
-    weapon_inventory = ["Common Level 1 Sword", "Uncommon Level 1 Sword"]
-    helmet_inventory = ["Legendary Level 1 Helmet"]
-    chestpiece_inventory = ["Rare Level 1 Chestpiece"]
+    weapon_inventory = ["Common Level 1 Sword"]
+    helmet_inventory = []
+    chestpiece_inventory = []
     leggings_inventory = []
     boots_inventory = []
+
+    # creates database on first run
+    create_database()
 max_health = health
 
 ############################
@@ -641,13 +707,14 @@ max_health = health
 
 if __name__ == "__main__":
 
-    # Make background transparent and always on top
+    # make background transparent and always on top
     root.config(highlightbackground='black')
     root.overrideredirect(True)
     root.wm_attributes('-transparentcolor', 'black')
     root['bg'] = 'black'
     root.wm_attributes('-topmost', '1')
 
+    # create character label, tooltip, and right click menu
     character = tk.Label(root, bd=0, bg='black')
     character.pack()
 
@@ -659,6 +726,7 @@ if __name__ == "__main__":
     m.add_command(label="Exit", command=do_quit)
     character.bind("<Button-3>", lambda event, menu = m: do_menu(event, menu))
 
+    # create enemy window and label
     enemy_root = tk.Toplevel(root)
     enemy_root.config(highlightbackground='black')
     enemy_root.overrideredirect(True)
@@ -666,10 +734,13 @@ if __name__ == "__main__":
     enemy_root['bg'] = 'black'
     enemy_root.wm_attributes('-topmost', '1')
 
+    # area for enemies to spawn
     enemy_root.geometry("+%d+%d" % (x - 800, y))
     enemy_root.geometry('700x500')
 
+    # start animating character
     root.after(1, update, cycle, check, event_number, x)
-    enemy_root.after(3000, spawn_enemy)
+    # start spawning enemies after certain time
+    enemy_root.after(30000, spawn_enemy)
 
     root.mainloop()
