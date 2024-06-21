@@ -283,6 +283,13 @@ def sell_equip(slot, current, inv, a_root):
     CreateToolTip(character, text = "Level: " + str(level) + "\nExperience: " + str(experience) + "\nHealth: " + str(health) + "\nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold), h = 150, w = -25)
 
 ############################
+#           Shop           #
+############################
+
+def open_shop():
+    print("shop")
+
+############################
 #        Character         #
 ############################
 
@@ -392,16 +399,35 @@ def spawn_enemy():
     enemy = tk.Label(enemy_root, bd=0, bg='black')
 
     enemy.place(x = random.randrange(0, 400), y = -50)
-    root.after(1, play_enemy(enemy, 0))
+
+    type = random.randrange(0, 3)
+    match type:
+            case 0:
+                name = 'Slime'
+            case 1:
+                name = 'Wolf'
+            case 2:
+                name = 'Goblin'
+
+    root.after(1, play_enemy(enemy, 0, name))
 
     enemy.bind("<Button-1>", lambda event: start_battle(enemy))
 
-    enemy.health = 100
-    enemy.max_health = 100
-    enemy.attack = 1
-    enemy.defense = 1
-    enemy.experience = 10
-    CreateToolTip(enemy, text = "Slime" + "\nHealth: " + str(enemy.health), h = 0, w = 50)
+    enemy.health = 0
+    enemy.max_health = 0
+    enemy.attack = 0
+    enemy.defense = 0
+    enemy.experience = 0
+
+    rows = get_enemies('Level ' + str(level) + " " + name)
+    for row in rows:
+        enemy.health = row[1]
+        enemy.max_health = row[1]
+        enemy.attack = row[2]
+        enemy.defense = row[3]
+        enemy.experience = row[4]
+
+    CreateToolTip(enemy, text = "Level " + str(level) + " " + name + "\nHealth: " + str(enemy.health), h = 0, w = 50)
 
     root.after(60000, lambda: despawn_enemy(enemy))
     root.after(30000, spawn_enemy)
@@ -409,8 +435,8 @@ def spawn_enemy():
 def despawn_enemy(enemy):
     enemy.destroy()
 
-def play_enemy(enemy, current_frame):
-    img = [tk.PhotoImage(file='assets/enemies/slime.gif', format = 'gif -index %i' %(i)) for i in range(6)]
+def play_enemy(enemy, current_frame, name):
+    img = [tk.PhotoImage(file='assets/enemies/' + name + '.gif', format = 'gif -index %i' %(i)) for i in range(6)]
     frame = img[current_frame]
     enemy.configure(image = frame)
     enemy.image = frame
@@ -418,7 +444,7 @@ def play_enemy(enemy, current_frame):
     if current_frame == len(img):
         current_frame = 0
     if not finished_battle:
-        root.after(200, lambda: play_enemy(enemy, current_frame))
+        root.after(200, lambda: play_enemy(enemy, current_frame, name))
     else:
         despawn_enemy(enemy)
 
@@ -438,9 +464,9 @@ def start_battle(enemy):
         root.after(100, lambda: start_battle(enemy))
 
 def update_battle(enemy, enemy_health, player_health):
-    global health, experience, in_battle, finished_battle, battle_distance, battle_moved, level
-    enemy.health -= max(attack - enemy.defense, 0)
-    health -= max(enemy.attack - defense, 0)
+    global health, experience, in_battle, finished_battle, battle_distance, battle_moved, level, max_health
+    enemy.health -= max(attack - (enemy.defense * 0.5), 0)
+    health -= max(enemy.attack - (defense * 0.5), 0)
     enemy_health.configure(text = "Enemy:\n" + str(max(enemy.health, 0)) + "/" + str(enemy.max_health))
     player_health.configure(text = "Player:\n" + str(max(health, 0)) + "/" + str(max_health))
 
@@ -450,6 +476,7 @@ def update_battle(enemy, enemy_health, player_health):
         if experience >= 100 and level < 5:
             level = level + 1
             experience = experience - 100
+            max_health += 20
         health = max_health
 
         UnbindToolTip(character)
@@ -494,7 +521,7 @@ def update_battle(enemy, enemy_health, player_health):
             drop = ""
         
         print(drop)
-        if drop != "":
+        if drop != "" and len(inv) < 25:
             inv.append(drop)
             drop_text = tk.Label(enemy_root, text = "Obtained " + drop)
             drop_text.place(x = enemy.winfo_x(), y = enemy.winfo_y() + 50)
@@ -522,7 +549,7 @@ def update_battle(enemy, enemy_health, player_health):
 
     else:
         print("next turn")
-        root.after(200, lambda: update_battle(enemy, enemy_health, player_health))
+        root.after(1000, lambda: update_battle(enemy, enemy_health, player_health))
 
     def destroy_text(drop_text):
         drop_text.destroy()
@@ -596,7 +623,7 @@ if (Path('savefile.dat').exists()):
 else:
     level = 1
     experience = 0
-    health = 100
+    health = 20
     gold = 0
     attack = 7
     defense = 1
@@ -628,6 +655,7 @@ if __name__ == "__main__":
 
     m = tk.Menu(root, tearoff = 0)
     m.add_command(label="Equipment", command=open_equipment)
+    m.add_command(label="Shop", command=open_shop)
     m.add_command(label="Exit", command=do_quit)
     character.bind("<Button-3>", lambda event, menu = m: do_menu(event, menu))
 
