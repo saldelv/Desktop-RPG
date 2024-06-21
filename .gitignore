@@ -1,0 +1,3 @@
+*.dat
+*.db
+__pycache__/
