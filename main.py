@@ -6,6 +6,7 @@ import zlib
 import tempfile
 import pickle
 from pathlib import Path
+import os
 from database import *
 
 ############################
@@ -155,6 +156,7 @@ def open_inventory(slot, eroot):
 
 # equipping new item
 def new_equip(slot, current, iroot, eroot):
+    print("e")
     global attack
     global defense
 
@@ -309,8 +311,54 @@ def sell_equip(slot, current, inv, a_root):
 #           Shop           #
 ############################
 
+#open shop window
 def open_shop():
-    print("shop")
+    # new window
+    sroot = tk.Toplevel(root)
+    sroot.resizable(0, 0)
+    sx = root.winfo_x() - 270
+    sy = root.winfo_y() - 170
+    sroot.geometry("+%d+%d" % (sx, sy))
+    sroot.wm_attributes('-topmost', '1')
+
+    #create buttons with each character in folder
+    i = 0
+    path = 'assets/character'
+    for f in os.listdir(path):
+        filepath = os.path.join(path, f)
+        if not os.path.isdir(filepath):
+            b = tk.Button(sroot)
+            img = tk.PhotoImage(file = filepath, master=sroot)
+            b.configure(image=img, command=lambda i = i: change_character(sroot, i))
+            b.image = img
+            b.grid(row = 0, column = i)
+
+            # check if unlocked
+            if shop_status[i] == True:
+                CreateToolTip(b, text="Unlocked", h = 25, w = 0)
+            else:
+                CreateToolTip(b, text="Price: 150 Gold", h = 25, w = 0)
+
+            i += 1
+
+# change current character
+def change_character(sroot, slot):
+    global gold, character_slot
+    # change character if unlocked
+    if shop_status[slot] == True:
+        character_slot = slot
+        set_character()
+        sroot.destroy()
+    # check if character can be purchased and change
+    else:
+        if gold >= 150:
+            gold -= 150
+            shop_status[slot] = True
+            character_slot = slot
+            set_character()
+            UnbindToolTip(character)
+            CreateToolTip(character, text = "Level: " + str(level) + "\nExperience: " + str(experience) + "\nHealth: " + str(health) + "\nAttack: " + str(attack) + "\nDefense: " + str(defense) + "\nGold: " + str(gold), h = 150, w = -25)
+            sroot.destroy()
 
 ############################
 #        Character         #
@@ -321,7 +369,7 @@ root = tk.Tk()
 
 # Default variables
 x = 2200
-y = 1280
+y = 1281
 cycle = 0
 check = 1
 idle_num=[1, 2, 3, 4]
@@ -334,11 +382,19 @@ battle_moved = 0
 finished_battle = False
 won = False
 
+# default gifs
+idle = [tk.PhotoImage(file='assets/character/' + str(0) + '/stand.gif', format = 'gif -index %i' %(i)) for i in range(2)]
+walk_positive = [tk.PhotoImage(file='assets/character/' + str(0) + '/left.gif', format = 'gif -index %i' %(i)) for i in range(2)]
+walk_negative = [tk.PhotoImage(file='assets/character/' + str(0) + '/right.gif', format = 'gif -index %i' %(i)) for i in range(2)]
+fight = [tk.PhotoImage(file='assets/character/' + str(0) + '/attack.gif', format = 'gif -index %i' %(i)) for i in range(2)]
+
 # Set gifs
-idle = [tk.PhotoImage(file='assets/character/stand.gif', format = 'gif -index %i' %(i)) for i in range(2)]
-walk_positive = [tk.PhotoImage(file='assets/character/left.gif', format = 'gif -index %i' %(i)) for i in range(2)]
-walk_negative = [tk.PhotoImage(file='assets/character/right.gif', format = 'gif -index %i' %(i)) for i in range(2)]
-fight = [tk.PhotoImage(file='assets/character/attack.gif', format = 'gif -index %i' %(i)) for i in range(2)]
+def set_character():
+    global idle, walk_positive, walk_negative, fight
+    idle = [tk.PhotoImage(file='assets/character/' + str(character_slot) + '/stand.gif', format = 'gif -index %i' %(i)) for i in range(2)]
+    walk_positive = [tk.PhotoImage(file='assets/character/' + str(character_slot) + '/left.gif', format = 'gif -index %i' %(i)) for i in range(2)]
+    walk_negative = [tk.PhotoImage(file='assets/character/' + str(character_slot) + '/right.gif', format = 'gif -index %i' %(i)) for i in range(2)]
+    fight = [tk.PhotoImage(file='assets/character/' + str(character_slot) + '/attack.gif', format = 'gif -index %i' %(i)) for i in range(2)]
 
 
 # Play gif and potentially change event
@@ -383,11 +439,12 @@ def update(cycle, check, event_number, x):
 
     elif check == 3:
         frame = fight[cycle]
-        cycle, event_number = gif_work(cycle, walk_negative, event_number, 1, 9)
+        cycle, event_number = gif_work(cycle, fight, event_number, 1, 9)
 
     # move character
     root.geometry('100x100+' + str(x) + '+' + str(y))
     character.configure(image = frame)
+    
     # don't randomly change event if battling
     if in_battle:
         if battle_moved < battle_distance:
@@ -493,14 +550,14 @@ def start_battle(enemy):
     # set battle variable and calculate distance to enemy
     if not in_battle:
         in_battle = True
-        battle_distance = (x - 1850) + (310-enemy.winfo_x())
+        battle_distance = (x - 1850) + (300-enemy.winfo_x())
     
     # create health labels and start fighting if moved to enemy
     if battle_moved >= battle_distance:
         enemy_health = tk.Label(enemy_root, text = "Enemy:\n" + str(enemy.health) + "/" + str(enemy.max_health))
         enemy_health.place(x = enemy.winfo_x(), y = enemy.winfo_y() + 50)
         player_health = tk.Label(enemy_root, text = "Player:\n" + str(health) + "/" + str(max_health))
-        player_health.place(x = enemy.winfo_x() + 225, y = enemy.winfo_y() + 50)
+        player_health.place(x = enemy.winfo_x() + 260, y = enemy.winfo_y() + 50)
         root.after(400, lambda: update_battle(enemy, enemy_health, player_health))
     # keep moving until reached enemy
     else:
@@ -573,11 +630,12 @@ def update_battle(enemy, enemy_health, player_health):
         
         # give drop to player and show label
         print(drop)
+        text = tk.Label(enemy_root, text = "Win!")
         if drop != "" and len(inv) < 25:
             inv.append(drop)
-            drop_text = tk.Label(enemy_root, text = "Obtained " + drop)
-            drop_text.place(x = enemy.winfo_x(), y = enemy.winfo_y() + 50)
-            root.after(3000, lambda: destroy_text(drop_text))
+            text.configure(text = "Win! \nObtained " + drop)
+        text.place(x = enemy.winfo_x(), y = enemy.winfo_y() + 50)
+        root.after(3000, lambda: destroy_text(text))
 
     # player loses battle
     elif health <= 0:
@@ -591,6 +649,9 @@ def update_battle(enemy, enemy_health, player_health):
         battle_moved = 0
         player_health.destroy()
         enemy_health.destroy()
+        text = tk.Label(enemy_root, text = "Lose...")
+        text.place(x = enemy.winfo_x(), y = enemy.winfo_y() + 50)
+        root.after(3000, lambda: destroy_text(text))
 
     # battle ties if no damage is done
     elif health == max_health and enemy.health == enemy.max_health:
@@ -602,6 +663,9 @@ def update_battle(enemy, enemy_health, player_health):
         battle_moved = 0
         player_health.destroy()
         enemy_health.destroy()
+        text = tk.Label(enemy_root, text = "Draw")
+        text.place(x = enemy.winfo_x(), y = enemy.winfo_y() + 50)
+        root.after(3000, lambda: destroy_text(text))
 
     # next turn of attacking
     else:
@@ -674,20 +738,20 @@ def do_menu(event, menu):
 # saves stats and inventory
 def do_quit():
     with open('savefile.dat', 'wb') as f:
-        pickle.dump([level, experience, health, gold, attack, defense, equiped, weapon_inventory, helmet_inventory, chestpiece_inventory, leggings_inventory, boots_inventory], f)
+        pickle.dump([level, experience, health, gold, attack, defense, equiped, weapon_inventory, helmet_inventory, chestpiece_inventory, leggings_inventory, boots_inventory, character_slot, shop_status], f)
 
     quit()
 
 # loads stats and inventory
 if (Path('savefile.dat').exists()):
     with open('savefile.dat', 'rb') as f:
-        level, experience, health, gold, attack, defense, equiped, weapon_inventory, helmet_inventory, chestpiece_inventory, leggings_inventory, boots_inventory = pickle.load(f)
+        level, experience, health, gold, attack, defense, equiped, weapon_inventory, helmet_inventory, chestpiece_inventory, leggings_inventory, boots_inventory, character_slot, shop_status = pickle.load(f)
 else:
     #stats for starting game for the first time
     level = 1
     experience = 0
     health = 20
-    gold = 0
+    gold = 160
     attack = 7
     defense = 1
     equiped = ["", "", "", "", ""]
@@ -696,10 +760,14 @@ else:
     chestpiece_inventory = []
     leggings_inventory = []
     boots_inventory = []
+    character_slot = 0
+    shop_status = [True, False, False, False, False]
 
     # creates database on first run
     create_database()
+# update max health and character based on saved data
 max_health = health
+set_character()
 
 ############################
 #           Main           #
@@ -741,6 +809,6 @@ if __name__ == "__main__":
     # start animating character
     root.after(1, update, cycle, check, event_number, x)
     # start spawning enemies after certain time
-    enemy_root.after(30000, spawn_enemy)
+    enemy_root.after(3000, spawn_enemy)
 
     root.mainloop()
