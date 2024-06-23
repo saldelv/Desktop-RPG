@@ -80,7 +80,7 @@ def get_equipped(slot, eroot):
                 stat = "Attack: "
             else:
                 stat = "Defense: "
-            CreateToolTip(button, text = str(row[0]) + "\n" + stat + str(row[1]) + "\nValue: " + str(row[2]), h = 25, w = 0)
+            CreateToolTip(button, text = str(row[0]) + "\n" + stat + str(row[1]) + "\nValue: " + str(row[2]), h = 75, w = -75)
 
         em = tk.Menu(root, tearoff = 0)
         em.add_command(label="Unequip", command=lambda: remove_equip(slot, eroot))
@@ -128,23 +128,22 @@ def open_inventory(slot, eroot):
         for j in range(5):
             b = tk.Button(iroot)
             if index < len(inv):
-                if inv[index]:
-                    img = tk.PhotoImage(file = "assets/items/" + inv[index] + ".png", master=iroot)
-                    current = index
-                    b.configure(image=img, command=lambda: new_equip(slot, current, iroot, eroot))
-                    b.image = img
+                img = tk.PhotoImage(file = "assets/items/" + inv[index] + ".png", master=iroot)
+                current = index
+                b.configure(image=img, command=lambda: new_equip(slot, current, iroot, eroot))
+                b.image = img
 
-                    rows = func(inv[index])
-                    for row in rows:
-                        if slot == 0:
-                            stat = "Attack: "
-                        else:
-                            stat = "Defense: "
-                        CreateToolTip(b, text = str(row[0]) + "\n" + stat + str(row[1]) + "\nValue: " + str(row[2]), h = 25, w = 0)
-                    
-                    im = tk.Menu(root, tearoff = 0)
-                    im.add_command(label="Sell", command=lambda: sell_equip(slot, current, inv, iroot))
-                    b.bind("<Button-3>", lambda event, menu = im: do_menu(event, menu))
+                rows = func(inv[index])
+                for row in rows:
+                    if slot == 0:
+                        stat = "Attack: "
+                    else:
+                        stat = "Defense: "
+                    CreateToolTip(b, text = str(row[0]) + "\n" + stat + str(row[1]) + "\nValue: " + str(row[2]), h = 75, w = -75)
+                
+                im = tk.Menu(root, tearoff = 0)
+                im.add_command(label="Sell", command=lambda: sell_equip(slot, current, inv, iroot))
+                b.bind("<Button-3>", lambda event, menu = im: do_menu(event, menu))
 
                 index += 1
             else:
@@ -320,6 +319,14 @@ def open_shop():
     sy = root.winfo_y() - 170
     sroot.geometry("+%d+%d" % (sx, sy))
     sroot.wm_attributes('-topmost', '1')
+
+    # transparent icon
+    ICON = zlib.decompress(base64.b64decode('eJxjYGAEQgEBBiDJwZDBy'
+    'sAgxsDAoAHEQCEGBQaIOAg4sDIgACMUj4JRMApGwQgF/ykEAFXxQRc='))
+    _, ICON_PATH = tempfile.mkstemp()
+    with open(ICON_PATH, 'wb') as icon_file:
+        icon_file.write(ICON)
+    sroot.iconbitmap(default=ICON_PATH)
 
     #create buttons with each character in folder
     i = 0
@@ -751,8 +758,8 @@ else:
     level = 1
     experience = 0
     health = 20
-    gold = 160
-    attack = 7
+    gold = 0
+    attack = 1
     defense = 1
     equiped = ["", "", "", "", ""]
     weapon_inventory = ["Common Level 1 Sword"]
@@ -767,6 +774,7 @@ else:
     create_database()
 # update max health and character based on saved data
 max_health = health
+print(character_slot)
 set_character()
 
 ############################
