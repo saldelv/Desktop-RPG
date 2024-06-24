@@ -1,5 +1,5 @@
 # Desktop-RPG
-Desktop RPG combines the idea of a desktop pet and an idle RPG game. It is a simple game made in python using tkinter that is played completely on top of your taskbar! Features include an automatically moving character, inventories and equipment, a character shop, and battles against different monsters. Free online assets are used for the [characters](https://alexdraws.itch.io/pixel-champions), [enemies](https://craftpix.net/freebies/free-field-enemies-pixel-art-for-tower-defense/), and [items](https://shikashipx.itch.io/shikashis-fantasy-icons-pack).
+Desktop RPG combines the idea of a desktop pet and an idle RPG game. It is a simple game made in python using tkinter that is played completely on top of your taskbar! Also uses a local databse to store and fetch enemy and item info. Features include an automatically moving character, inventories and equipment, a character shop, and battles against different monsters. Free online assets are used for the [characters](https://alexdraws.itch.io/pixel-champions), [enemies](https://craftpix.net/freebies/free-field-enemies-pixel-art-for-tower-defense/), and [items](https://shikashipx.itch.io/shikashis-fantasy-icons-pack).
 
 # Screenshots
 <img width="433" alt="1" src="https://github.com/saldelv/Desktop-RPG/assets/96501610/b3e66608-93c5-4790-a2f5-a70b47050b44">\
