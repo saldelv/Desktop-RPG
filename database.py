@@ -180,9 +180,9 @@ def create_database():
     chestpiece_table = "CREATE TABLE enemies (name TEXT, health INTEGER, attack INTEGER, defense INTEGER, experience INTEGER)"
     cursor.execute(chestpiece_table)
 
-    cursor.execute("INSERT INTO enemies VALUES ('Level 1 Slime', 20, 5, 1, 5)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 2 Slime', 30, 10, 3, 5)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 3 Slime', 40, 20, 5, 5)")
+    cursor.execute("INSERT INTO enemies VALUES ('Level 1 Slime', 20, 1, 1, 5)")
+    cursor.execute("INSERT INTO enemies VALUES ('Level 2 Slime', 30, 5, 3, 5)")
+    cursor.execute("INSERT INTO enemies VALUES ('Level 3 Slime', 40, 15, 5, 5)")
     cursor.execute("INSERT INTO enemies VALUES ('Level 4 Slime', 50, 30, 8, 5)")
     cursor.execute("INSERT INTO enemies VALUES ('Level 5 Slime', 60, 40, 10, 5)")
 
@@ -275,10 +275,10 @@ def get_enemies(name):
 
     return rows
 
-#create_database()
-#print(get_weapon("Common Level 1 Sword"))
-#print(get_helmet("Legendary Level 1 Helmet"))
-#print(get_chestpiece("Rare Level 1 Chestpiece"))
-#print(get_leggings("Common Level 1 Leggings"))
-#print(get_boots("Common Level 1 Boots"))
-
+if __name__ == "__main__":
+    create_database()
+    print(get_weapon("Common Level 1 Sword"))
+    print(get_helmet("Legendary Level 1 Helmet"))
+    print(get_chestpiece("Rare Level 1 Chestpiece"))
+    print(get_leggings("Common Level 1 Leggings"))
+    print(get_boots("Common Level 1 Boots"))
