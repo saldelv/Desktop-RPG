@@ -49,23 +49,23 @@ class Inventory:
     def get_equipped(self, slot, eroot):
         match slot:
             case 0:
-                func = get_weapon
+                table = 'weapons'
                 empty = 'Empty Sword.png'
                 item = "Sword"
             case 1:
-                func = get_helmet
+                table = 'helmets'
                 empty = 'Empty Helmet.png'
                 item = "Helmet"
             case 2:
-                func = get_chestpiece
+                table = 'chestpieces'
                 empty = 'Empty Chestpiece.png'
                 item = "Chestpiece"
             case 3:
-                func = get_leggings
+                table = 'leggings'
                 empty = 'Empty Leggings.png'
                 item = "Leggings"
             case 4:
-                func = get_boots
+                table = 'boots'
                 empty = 'Empty Boots.png'
                 item = "Boots"
 
@@ -73,7 +73,7 @@ class Inventory:
         button = tk.Button(eroot, command=lambda: self.open_inventory(slot, eroot))
         if self.character.equiped[slot] != "":
             img = tk.PhotoImage(file = 'assets/items/' + self.character.equiped[slot] + '.png', master=eroot)
-            rows = func(self.character.equiped[slot])
+            rows = get_query(table, self.character.equiped[slot])
             for row in rows:
                 if slot == 0:
                     stat = "Attack: "
@@ -99,19 +99,19 @@ class Inventory:
         match slot:
             case 0:
                 inv = self.character.weapon_inventory
-                func = get_weapon
+                table = 'weapons'
             case 1:
                 inv = self.character.helmet_inventory
-                func = get_helmet
+                table = 'helmets'
             case 2:
                 inv = self.character.chestpiece_inventory
-                func = get_chestpiece
+                table = 'chestpieces'
             case 3:
                 inv = self.character.leggings_inventory
-                func = get_leggings
+                table = 'leggings'
             case 4:
                 inv = self.character.boots_inventory
-                func = get_boots
+                table = 'boots'
         
         # new window
         iroot = tk.Toplevel(eroot)
@@ -132,7 +132,7 @@ class Inventory:
                     b.configure(image=img, command=lambda: self.new_equip(slot, current, iroot, eroot))
                     b.image = img
 
-                    rows = func(inv[index])
+                    rows = get_query(table, inv[index])
                     for row in rows:
                         if slot == 0:
                             stat = "Attack: "
@@ -159,26 +159,26 @@ class Inventory:
         match slot:
             case 0:
                 inv = self.character.weapon_inventory
-                func = get_weapon
+                table = 'weapons'
             case 1:
                 inv = self.character.helmet_inventory
-                func = get_helmet
+                table = 'helmets'
             case 2:
                 inv = self.character.chestpiece_inventory
-                func = get_chestpiece
+                table = 'chestpieces'
             case 3:
                 inv = self.character.leggings_inventory
-                func = get_leggings
+                table = 'leggings'
             case 4:
                 inv = self.character.boots_inventory
-                func = get_boots
+                table = 'boots'
         
         # move item to equipped if empty and chage stats
         if not self.character.equiped[slot]:
             self.character.equiped[slot] = inv[current]
             inv.remove(inv[current])
 
-            rows = func(self.character.equiped[slot])
+            rows = get_query(table, self.character.equiped[slot])
             for row in rows:
                 if slot > 0:
                     self.character.defense += row[1]
@@ -187,7 +187,7 @@ class Inventory:
 
         # swap item with equipped if not empty and change stats
         else:
-            rows = func(self.character.equiped[slot])
+            rows = get_query(table, self.character.equiped[slot])
             for row in rows:
                 if slot > 0:
                     self.character.defense -= row[1]
@@ -198,7 +198,7 @@ class Inventory:
             self.character.equiped[slot] = inv[current]
             inv[current] = temp
 
-            rows = func(self.character.equiped[slot])
+            rows = get_query(table, self.character.equiped[slot])
             for row in rows:
                 if slot > 0:
                     self.character.defense += row[1]
@@ -220,24 +220,24 @@ class Inventory:
         match slot:
             case 0:
                 inv = self.character.weapon_inventory
-                func = get_weapon
+                table = 'weapons'
             case 1:
                 inv = self.character.helmet_inventory
-                func = get_helmet
+                table = 'helmets'
             case 2:
                 inv = self.character.chestpiece_inventory
-                func = get_chestpiece
+                table = 'chestpieces'
             case 3:
                 inv = self.character.leggings_inventory
-                func = get_leggings
+                table = 'leggings'
             case 4:
                 inv = self.character.boots_inventory
-                func = get_boots
+                table = 'boots'
 
         # move item to inventory and change stats
         inv.append(self.character.equiped[slot])
 
-        rows = func(self.character.equiped[slot])
+        rows = get_query(table, self.character.equiped[slot])
         for row in rows:
             if slot > 0:
                 self.character.defense -= row[1]
@@ -258,20 +258,20 @@ class Inventory:
         
         # get correct slot info
         match slot:
-                case 0:
-                    func = get_weapon
-                case 1:
-                    func = get_helmet
-                case 2:
-                    func = get_chestpiece
-                case 3:
-                    func = get_leggings
-                case 4:
-                    func = get_boots
+            case 0:
+                table = 'weapons'
+            case 1:
+                table = 'helmets'
+            case 2:
+                table = 'chestpieces'
+            case 3:
+                table = 'leggings'
+            case 4:
+                table = 'boots'
 
         # unequip, add gold and change stats if equipped
         if current < 0:
-            rows = func(self.character.equiped[slot])
+            rows = get_query(table, self.character.equiped[slot])
             for row in rows:
                 self.character.gold += row[2]
                 if slot > 0:
@@ -286,7 +286,7 @@ class Inventory:
 
         # remove from inventory and add gold if not equipped
         else:
-            rows = func(inv[current])
+            rows = get_query(table, inv[current])
             for row in rows:
                 self.character.gold += row[2]
 

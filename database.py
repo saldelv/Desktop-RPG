@@ -1,204 +1,123 @@
 import sqlite3
+import sqlalchemy
 
 def create_database():
-    sqliteConnection = sqlite3.connect('sql.db')
-
-    cursor = sqliteConnection.cursor()
 
     #items
-    for i in range(1, 6):
-        num = 0
+    engine = sqlalchemy.create_engine('sqlite:///sql.db')
+    meta = sqlalchemy.MetaData()
+
+    for i in range(5):
+        num = 1
+
         match i:
-            case 1:
-                weapon_table = "CREATE TABLE weapons (name TEXT, attack INTEGER, value INTEGER)"
-                cursor.execute(weapon_table)
+            case 0:
+                table_name = 'weapons'
                 name = "Sword"
-                for j in range(1, 6):
-                    for k in range(1, 6):
-                        match j:
-                            case 1:
-                                rarity = "Common"
-                            case 2:
-                                rarity = "Uncommon"
-                            case 3:
-                                rarity = "Rare"
-                            case 4:
-                                rarity = "Epic"
-                            case 5:
-                                rarity = "Legendary"
-                        level = str(k)
-                        full = rarity + " Level " + level + " " + name
-                        cursor.execute("INSERT INTO weapons VALUES (?, ?, ?)",(full, k, k))
-                        num += 5
-                    num -= 19
-            case 2:
-                helmet_table = "CREATE TABLE helmets (name TEXT, defense INTEGER, value INTEGER)"
-                cursor.execute(helmet_table)
+                stat = 'attack'
+            case 1:
+                table_name = 'helmets'
                 name = "Helmet"
-                for j in range(1, 6):
-                    for k in range(1, 6):
-                        match j:
-                            case 1:
-                                rarity = "Common"
-                            case 2:
-                                rarity = "Uncommon"
-                            case 3:
-                                rarity = "Rare"
-                            case 4:
-                                rarity = "Epic"
-                            case 5:
-                                rarity = "Legendary"
-                        level = str(k)
-                        full = rarity + " Level " + level + " " + name
-                        cursor.execute("INSERT INTO helmets VALUES (?, ?, ?)",(full, k, k))
-                        num += 5
-                    num -= 19
-            case 3:
-                chestpiece_table = "CREATE TABLE chestpieces (name TEXT, defense INTEGER, value INTEGER)"
-                cursor.execute(chestpiece_table)
+                stat = 'defense'
+            case 2:
+                table_name = 'chestpieces'
                 name = "Chestpiece"
-                for j in range(1, 6):
-                    for k in range(1, 6):
-                        match j:
-                            case 1:
-                                rarity = "Common"
-                            case 2:
-                                rarity = "Uncommon"
-                            case 3:
-                                rarity = "Rare"
-                            case 4:
-                                rarity = "Epic"
-                            case 5:
-                                rarity = "Legendary"
-                        level = str(k)
-                        full = rarity + " Level " + level + " " + name
-                        cursor.execute("INSERT INTO chestpieces VALUES (?, ?, ?)",(full, k, k))
-                        num += 5
-                    num -= 19
-            case 4:
-                leggings_table = "CREATE TABLE leggings (name TEXT, defense INTEGER, value INTEGER)"
-                cursor.execute(leggings_table)
+                stat = 'defense'
+            case 3:
+                table_name = 'leggings'
                 name = "Leggings"
-                for j in range(1, 6):
-                    for k in range(1, 6):
-                        match j:
-                            case 1:
-                                rarity = "Common"
-                            case 2:
-                                rarity = "Uncommon"
-                            case 3:
-                                rarity = "Rare"
-                            case 4:
-                                rarity = "Epic"
-                            case 5:
-                                rarity = "Legendary"
-                        level = str(k)
-                        full = rarity + " Level " + level + " " + name
-                        cursor.execute("INSERT INTO leggings VALUES (?, ?, ?)",(full, k, k))
-                        num += 5
-                    num -= 19
-            case 5:
-                boots_table = "CREATE TABLE boots (name TEXT, defense INTEGER, value INTEGER)"
-                cursor.execute(boots_table)
+                stat = 'defense'
+            case 4:
+                table_name = 'boots'
                 name = "Boots"
-                for j in range(1, 6):
-                    for k in range(1, 6):
-                        match j:
-                            case 1:
-                                rarity = "Common"
-                            case 2:
-                                rarity = "Uncommon"
-                            case 3:
-                                rarity = "Rare"
-                            case 4:
-                                rarity = "Epic"
-                            case 5:
-                                rarity = "Legendary"
-                        level = str(k)
-                        full = rarity + " Level " + level + " " + name
-                        cursor.execute("INSERT INTO boots VALUES (?, ?, ?)",(full, k, k))
-                        num += 5
-                    num -= 19
+                stat = 'defense'
 
+        table = sqlalchemy.Table(
+            table_name, meta,
+            sqlalchemy.Column('name', sqlalchemy.String),
+            sqlalchemy.Column(stat, sqlalchemy.Integer),
+            sqlalchemy.Column('value', sqlalchemy.Integer),
+        )
+
+        meta.create_all(engine)
+
+        for j in range(5):
+            for k in range(5):
+                match j:
+                    case 0:
+                        rarity = "Common"
+                    case 1:
+                        rarity = "Uncommon"
+                    case 2:
+                        rarity = "Rare"
+                    case 3:
+                        rarity = "Epic"
+                    case 4:
+                        rarity = "Legendary"
+                level = str(k + 1)
+                full = rarity + " Level " + level + " " + name
+
+                if i == 0:
+                    ins = table.insert().values(name = full, attack = num, value = num)
+                else:
+                    ins = table.insert().values(name = full, defense = num, value = num)
+                conn = engine.connect()
+                conn.execute(ins)
+                conn.commit()
+                
+                num += 5
+            num -= 24
+    
     # enemies
-    enemy_table = "CREATE TABLE enemies (name TEXT, health INTEGER, attack INTEGER, defense INTEGER, experience INTEGER)"
-    cursor.execute(enemy_table)
+    enemies = sqlalchemy.Table(
+            'enemies', meta,
+            sqlalchemy.Column('name', sqlalchemy.String),
+            sqlalchemy.Column('health', sqlalchemy.Integer),
+            sqlalchemy.Column('attack', sqlalchemy.Integer),
+            sqlalchemy.Column('defense', sqlalchemy.Integer),
+            sqlalchemy.Column('experience', sqlalchemy.Integer),
+        )
+    
+    meta.create_all(engine)
 
-    cursor.execute("INSERT INTO enemies VALUES ('Level 1 Slime', 20, 1, 1, 5)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 2 Slime', 30, 5, 3, 5)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 3 Slime', 40, 15, 5, 5)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 4 Slime', 50, 30, 8, 5)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 5 Slime', 60, 40, 10, 5)")
+    
+    conn = engine.connect()
+    conn.execute(enemies.insert(), [
+        {'name':'Level 1 Slime', 'health':20, 'attack':1, 'defense':1, 'experience':5},
+        {'name':'Level 2 Slime', 'health':30, 'attack':5, 'defense':3, 'experience':5},
+        {'name':'Level 3 Slime', 'health':40, 'attack':15, 'defense':5, 'experience':5},
+        {'name':'Level 4 Slime', 'health':50, 'attack':30, 'defense':8, 'experience':5},
+        {'name':'Level 5 Slime', 'health':60, 'attack':40, 'defense':10, 'experience':5},
 
-    cursor.execute("INSERT INTO enemies VALUES ('Level 1 Wolf', 20, 8, 3, 10)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 2 Wolf', 30, 15, 8, 10)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 3 Wolf', 40, 25, 12, 10)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 4 Wolf', 50, 35, 15, 10)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 5 Wolf', 60, 50, 20, 10)")
+        {'name':'Level 1 Wolf', 'health':20, 'attack':8, 'defense':3, 'experience':10},
+        {'name':'Level 2 Wolf', 'health':30, 'attack':15, 'defense':8, 'experience':10},
+        {'name':'Level 3 Wolf', 'health':40, 'attack':25, 'defense':12, 'experience':10},
+        {'name':'Level 4 Wolf', 'health':50, 'attack':35, 'defense':15, 'experience':10},
+        {'name':'Level 5 Wolf', 'health':60, 'attack':50, 'defense':20, 'experience':10},
 
-    cursor.execute("INSERT INTO enemies VALUES ('Level 1 Goblin', 20, 10, 5, 15)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 2 Goblin', 30, 20, 10, 15)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 3 Goblin', 40, 30, 15, 15)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 4 Goblin', 50, 50, 20, 15)")
-    cursor.execute("INSERT INTO enemies VALUES ('Level 5 Goblin', 60, 70, 30, 15)")
+        {'name':'Level 1 Goblin', 'health':20, 'attack':10, 'defense':5, 'experience':15},
+        {'name':'Level 2 Goblin', 'health':30, 'attack':20, 'defense':10, 'experience':15},
+        {'name':'Level 3 Goblin', 'health':40, 'attack':30, 'defense':15, 'experience':15},
+        {'name':'Level 4 Goblin', 'health':50, 'attack':50, 'defense':20, 'experience':15},
+        {'name':'Level 5 Goblin', 'health':60, 'attack':70, 'defense':30, 'experience':15},
+    ])
+    
+    conn.commit()
 
-    sqliteConnection.commit()
+def get_query(table_name, name):
+    engine = sqlalchemy.create_engine('sqlite:///sql.db')
+    meta = sqlalchemy.MetaData()
+    sqlalchemy.MetaData.reflect(meta, bind=engine)
+    table = meta.tables[table_name]
+    query = table.select()
+    query = query.where(table.c.name == name)
+    with engine.connect() as conn:
+        result = conn.execute(query)
+    return result
 
-    cursor.close()
-    sqliteConnection.close()
-
-def get_weapon(name):
-    sqliteConnection = sqlite3.connect('sql.db')
-    cursor = sqliteConnection.cursor()
-    rows = cursor.execute("SELECT name, attack, value FROM weapons WHERE name = ?", (name,),).fetchall()
-    cursor.close()
-    sqliteConnection.close()
-    return rows
-
-def get_helmet(name):
-    sqliteConnection = sqlite3.connect('sql.db')
-    cursor = sqliteConnection.cursor()
-    rows = cursor.execute("SELECT name, defense, value FROM helmets WHERE name = ?", (name,),).fetchall()
-    cursor.close()
-    sqliteConnection.close()
-    return rows
-
-def get_chestpiece(name):
-    sqliteConnection = sqlite3.connect('sql.db')
-    cursor = sqliteConnection.cursor()
-    rows = cursor.execute("SELECT name, defense, value FROM chestpieces WHERE name = ?", (name,),).fetchall()
-    cursor.close()
-    sqliteConnection.close()
-    return rows
-
-def get_leggings(name):
-    sqliteConnection = sqlite3.connect('sql.db')
-    cursor = sqliteConnection.cursor()
-    rows = cursor.execute("SELECT name, defense, value FROM leggings WHERE name = ?", (name,),).fetchall()
-    cursor.close()
-    sqliteConnection.close()
-    return rows
-
-def get_boots(name):
-    sqliteConnection = sqlite3.connect('sql.db')
-    cursor = sqliteConnection.cursor()
-    rows = cursor.execute("SELECT name, defense, value FROM boots WHERE name = ?", (name,),).fetchall()
-    cursor.close()
-    sqliteConnection.close()
-    return rows
-
-def get_enemies(name):
-    sqliteConnection = sqlite3.connect('sql.db')
-    cursor = sqliteConnection.cursor()
-    rows = cursor.execute("SELECT name, health, attack, defense, experience FROM enemies WHERE name = ?", (name,),).fetchall()
-    cursor.close()
-    sqliteConnection.close()
-    return rows
 
 if __name__ == "__main__":
-    create_database()
-    print(get_weapon("Common Level 1 Sword"))
-    print(get_helmet("Legendary Level 1 Helmet"))
-    print(get_chestpiece("Rare Level 1 Chestpiece"))
-    print(get_leggings("Common Level 1 Leggings"))
-    print(get_boots("Common Level 1 Boots"))
+    #create_database()
+    get_query("weapons", "Common Level 1 Sword")
+    get_query("helmets", "Legendary Level 1 Helmet")
+    get_query("enemies", "Level 1 Slime")

@@ -58,8 +58,9 @@ class Enemy:
         enemy.defense = 0
         enemy.experience = 0
 
-        rows = get_enemies('Level ' + str(self.character.level) + " " + name)
+        rows = get_query('enemies', 'Level ' + str(self.character.level) + " " + name)
         for row in rows:
+            print(row[1])
             enemy.health = row[1]
             enemy.max_health = row[1]
             enemy.attack = row[2]

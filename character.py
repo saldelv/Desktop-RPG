@@ -21,4 +21,4 @@ class Character:
     # saves stats and inventory
     def save(self):
         with open('savefile.dat', 'wb') as f:
-            pickle.dump([self.level, self.experience, self.health, self.gold, self.attack, self.defense, self.equiped, self.weapon_inventory, self.helmet_inventory, self.chestpiece_inventory, self.leggings_inventory, self.boots_inventory, self.character_slot, self.shop_status], f)
+            pickle.dump([self.level, self.experience, self.max_health, self.gold, self.attack, self.defense, self.equiped, self.weapon_inventory, self.helmet_inventory, self.chestpiece_inventory, self.leggings_inventory, self.boots_inventory, self.character_slot, self.shop_status], f)
